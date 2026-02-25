@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Balancete Janeiro 2026 – JJC Ferramentas Ltda</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #1e3a5f;
+      --primary-light: #2563eb;
+      --accent: #10b981;
+      --accent2: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 24px rgba(30,58,95,0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+      color: #fff;
+      padding: 36px 40px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 320px; height: 320px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .header-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .company-name { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .company-sub { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+    .badge-periodo {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 40px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
+    }
+    .header-desc { margin-top: 18px; font-size: 14px; opacity: 0.8; max-width: 600px; }
+
+    /* ── NAV TABS ── */
+    .tabs-bar {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .tabs-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; gap: 0; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-inner::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: 16px 24px;
+      border: none; background: none;
+      font-family: inherit; font-size: 14px; font-weight: 500;
+      color: var(--text-muted); cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all .2s; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--primary-light); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary-light); font-weight: 700; }
+
+    /* ── MAIN ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 32px 20px 60px; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px; margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--primary-light);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(30,58,95,0.13); }
+    .kpi-card.green { border-left-color: var(--accent); }
+    .kpi-card.amber { border-left-color: var(--accent2); }
+    .kpi-card.red   { border-left-color: var(--danger); }
+    .kpi-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; }
+    .kpi-value { font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--primary); line-height: 1; }
+    .kpi-value.red { color: var(--danger); }
+    .kpi-value.green { color: var(--accent); }
+    .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .kpi-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; margin-top: 8px; padding: 3px 10px; border-radius: 20px; }
+    .kpi-delta.neg { background: #fef2f2; color: var(--danger); }
+    .kpi-delta.pos { background: #f0fdf4; color: var(--accent); }
+
+    /* ── CHART CARDS ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px; margin-bottom: 32px;
+    }
+    .chart-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+    .chart-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+    .chart-wrap { position: relative; }
+
+    /* ── TABLES ── */
+    .table-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+    .table-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: .4px;
+    }
+    thead th:first-child { border-radius: 8px 0 0 0; }
+    thead th:last-child  { border-radius: 0 8px 0 0; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: #f8fafc; }
+    tbody td { padding: 11px 14px; color: var(--text); }
+    tbody td.num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+    tbody td.green { color: var(--accent); font-weight: 600; }
+    tbody td.red   { color: var(--danger); font-weight: 600; }
+    tbody td.bold  { font-weight: 700; }
+    tbody tr.total-row td { background: #f1f5f9; font-weight: 700; border-top: 2px solid var(--border); }
+    tbody tr.subtotal td { background: #f8fafc; font-style: italic; }
+
+    /* ── PROGRESS BARS ── */
+    .progress-list { display: flex; flex-direction: column; gap: 14px; }
+    .progress-item {}
+    .progress-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .progress-label { font-size: 13px; font-weight: 500; }
+    .progress-val { font-size: 13px; font-weight: 700; color: var(--primary); }
+    .progress-bar-bg { height: 10px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+
+    /* ── RESULTADO VISUAL ── */
+    .resultado-box {
+      background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+      border: 2px solid #fecaca;
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    }
+    .resultado-icon { font-size: 48px; }
+    .resultado-text h3 { font-size: 18px; font-weight: 800; color: var(--danger); }
+    .resultado-text p { font-size: 13px; color: var(--text-muted); margin-top: 4px; max-width: 480px; }
+    .resultado-value { margin-left: auto; text-align: right; }
+    .resultado-value .big { font-size: 36px; font-weight: 800; color: var(--danger); }
+    .resultado-value .small { font-size: 12px; color: var(--text-muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    /* ── TOOLTIP CUSTOM ── */
+    .info-tooltip {
+      display: inline-block;
+      width: 16px; height: 16px;
+      background: var(--text-muted);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 10px;
+      text-align: center;
+      line-height: 16px;
+      cursor: help;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      header { padding: 24px 20px; }
+      .company-name { font-size: 20px; }
+      .kpi-value { font-size: 22px; }
+      main { padding: 20px 12px 40px; }
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .section.active .kpi-card,
+    .section.active .chart-card,
+    .section.active .table-card,
+    .section.active .resultado-box {
+      animation: fadeUp .4s ease both;
+    }
+    .section.active .kpi-card:nth-child(2) { animation-delay: .05s; }
+    .section.active .kpi-card:nth-child(3) { animation-delay: .10s; }
+    .section.active .kpi-card:nth-child(4) { animation-delay: .15s; }
+    .section.active .kpi-card:nth-child(5) { animation-delay: .20s; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="company-name">JJC Ferramentas Ltda</div>
+        <div class="company-sub">CNPJ: 47.835.951/0001-44</div>
+      </div>
+      <div class="badge-periodo">📅 Balancete · Janeiro 2026</div>
+    </div>
+    <div class="header-desc">Relatório financeiro gerencial — período 01/01/2026 a 31/01/2026 · Emissão: 25/02/2026</div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="showTab('visao-geral')">📊 Visão Geral</button>
+    <button class="tab-btn" onclick="showTab('resultado')">💰 Resultado</button>
+    <button class="tab-btn" onclick="showTab('ativo')">🏦 Ativo</button>
+    <button class="tab-btn" onclick="showTab('passivo')">📋 Passivo</button>
+    <button class="tab-btn" onclick="showTab('despesas')">📉 Despesas</button>
+    <button class="tab-btn" onclick="showTab('balancete')">📄 Balancete Completo</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SEÇÃO: VISÃO GERAL -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="visao-geral" class="section active">
+
+    <!-- KPIs principais -->
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">Receita Bruta</div>
+        <div class="kpi-value green">R$ 37.874</div>
+        <div class="kpi-sub">Vendas de mercadorias em jan/26</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Receita Líquida</div>
+        <div class="kpi-value">R$ 29.587</div>
+        <div class="kpi-sub">Após deduções e impostos</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Custo das Mercadorias (CMV)</div>
+        <div class="kpi-value" style="color:var(--accent2)">R$ 7.894</div>
+        <div class="kpi-sub">20,8% da receita bruta</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Resultado do Mês</div>
+        <div class="kpi-value red">– R$ 7.681</div>
+        <div class="kpi-sub">Prejuízo operacional</div>
+        <span class="kpi-delta neg">▼ Negativo</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total do Ativo</div>
+        <div class="kpi-value">R$ 718.383</div>
+        <div class="kpi-sub">Saldo atual em jan/26</div>
+      </div>
+    </div>
+
+    <!-- Gráficos principais -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Composição do Ativo Circulante</div>
+        <div class="chart-sub">Distribuição por categoria (saldo atual)</div>
+        <div class="chart-wrap"><canvas id="chartAtivoCirc" height="260"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Receita × Custos × Despesas</div>
+        <div class="chart-sub">Comparativo do mês de janeiro/2026</div>
+        <div class="chart-wrap"><canvas id="chartDRE" height="260"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <div class="chart-title">Estrutura Patrimonial — Antes × Depois</div>
+        <div class="chart-sub">Comparativo saldo anterior vs. saldo atual (principais grupos)</div>
+        <div class="chart-wrap"><canvas id="chartPatrimonio" height="160"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Resultado visual -->
+    <div class="resultado-box">
+      <div class="resultado-icon">⚠️</div>
+      <div class="resultado-text">
+        <h3>Prejuízo no Período</h3>
+        <p>A empresa encerrou janeiro/2026 com resultado negativo. As despesas operacionais (R$ 29.373) superaram o lucro bruto (R$ 21.692), gerando um prejuízo de R$ 7.681 no mês.</p>
+      </div>
+      <div class="resultado-value">
+        <div class="big">– R$ 7.681</div>
+        <div class="small">Resultado jan/2026</div>
+      </div>
+    </div>
+
+    <!-- Indicadores de margem -->
+    <div class="chart-card">
+      <div class="chart-title">Indicadores de Margem</div>
+      <div class="chart-sub">Percentuais sobre a receita bruta de R$ 37.874</div>
+      <div class="progress-list" style="margin-top:8px">
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Margem Bruta (Lucro Bruto / Rec. Bruta)</span>
+            <span class="progress-val" style="color:var(--accent)">57,3%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:57.3%;background:var(--accent)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Deduções sobre Receita Bruta</span>
+            <span class="progress-val" style="color:var(--accent2)">21,9%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:21.9%;background:var(--accent2)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Despesas Operacionais / Receita Bruta</span>
+            <span class="progress-val" style="color:var(--danger)">77,6%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:77.6%;background:var(--danger)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">Margem Líquida (Resultado / Rec. Bruta)</span>
+            <span class="progress-val" style="color:var(--danger)">-20,3%</span>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:20.3%;background:var(--danger)"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SEÇÃO: RESULTADO (DRE) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="resultado" class="section">
+
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">Receita Bruta</div>
+        <div class="kpi-value green">R$ 37.874</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Receita Líquida</div>
+        <div class="kpi-value">R$ 29.587</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Lucro Bruto</div>
+        <div class="kpi-value" style="color:var(--accent2)">R$ 21.692</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Resultado Líquido</div>
+        <div class="kpi-value red">– R$ 7.681</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Cascata de Resultado (Waterfall)</div>
+        <div class="chart-sub">Da receita bruta ao resultado final</div>
+        <div class="chart-wrap"><canvas id="chartWaterfall" height="300"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Deduções da Receita Bruta</div>
+        <div class="chart-sub">Composição das deduções (R$ 8.288)</div>
+        <div class="chart-wrap"><canvas id="chartDeducoes" height="300"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-title">Demonstrativo de Resultado do Exercício — Janeiro 2026</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th style="text-align:right">Valor (R$)</th>
+            <th style="text-align:right">% Rec. Bruta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="bold">Receita Bruta de Vendas</td><td class="num green">37.874,45</td><td class="num">100,0%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) Devoluções e Cancelamentos</td><td class="num red">(3.923,03)</td><td class="num">-10,4%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) ICMS sobre Vendas</td><td class="num red">(726,97)</td><td class="num">-1,9%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) COFINS</td><td class="num red">(2.878,46)</td><td class="num">-7,6%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) PIS</td><td class="num red">(624,93)</td><td class="num">-1,6%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) ICMS Fundo Social / Educação</td><td class="num red">(134,43)</td><td class="num">-0,4%</td></tr>
+          <tr class="total-row"><td>= Receita Líquida</td><td class="num">29.586,63</td><td class="num">78,1%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) CMV – Custo das Mercadorias Vendidas</td><td class="num red">(7.894,45)</td><td class="num">-20,8%</td></tr>
+          <tr class="total-row"><td>= Lucro Bruto</td><td class="num" style="color:var(--accent2)">21.692,18</td><td class="num">57,3%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) Despesas com Vendas</td><td class="num red">(12.028,98)</td><td class="num">-31,8%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;(-) Despesas Administrativas</td><td class="num red">(17.344,30)</td><td class="num">-45,8%</td></tr>
+          <tr class="total-row"><td>= Resultado Operacional (Prejuízo)</td><td class="num red">(7.681,10)</td><td class="num red">-20,3%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SEÇÃO: ATIVO -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="ativo" class="section">
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total do Ativo</div>
+        <div class="kpi-value">R$ 718.383</div>
+        <div class="kpi-sub">Saldo atual jan/26</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Disponível (Caixa + Bancos)</div>
+        <div class="kpi-value green">R$ 32.083</div>
+        <div class="kpi-sub">↑ Cresceu R$ 3.619 no mês</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Clientes a Receber</div>
+        <div class="kpi-value" style="color:var(--accent2)">R$ 630.772</div>
+        <div class="kpi-sub">87,8% do ativo total</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Estoque</div>
+        <div class="kpi-value">R$ 22.070</div>
+        <div class="kpi-sub">Mercadorias para revenda</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Composição do Ativo — Saldo Atual</div>
+        <div class="chart-sub">Participação de cada grupo no total do ativo</div>
+        <div class="chart-wrap"><canvas id="chartAtivoTotal" height="280"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Disponível por Conta</div>
+        <div class="chart-sub">Distribuição do caixa e bancos (R$ 32.083)</div>
+        <div class="chart-wrap"><canvas id="chartDisponivel" height="280"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-title">Detalhamento do Ativo — Janeiro 2026</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Conta</th>
+            <th style="text-align:right">Saldo Anterior</th>
+            <th style="text-align:right">Débito</th>
+            <th style="text-align:right">Crédito</th>
+            <th style="text-align:right">Saldo Atual</th>
+            <th style="text-align:right">Variação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>ATIVO CIRCULANTE</td><td class="num">716.932,93</td><td class="num">167.768,29</td><td class="num">169.541,67</td><td class="num">715.159,55</td><td class="num red">-1.773,38</td></tr>
+          <tr><td>&nbsp;&nbsp;Disponível</td><td class="num">28.464,01</td><td class="num">94.371,05</td><td class="num">90.752,15</td><td class="num green">32.082,91</td><td class="num green">+3.618,90</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Caixa Geral</td><td class="num">10.191,34</td><td class="num">0,00</td><td class="num">0,00</td><td class="num">10.191,34</td><td class="num">0,00</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Mercado Pago</td><td class="num">13.316,93</td><td class="num">17.544,08</td><td class="num">28.913,00</td><td class="num">1.948,01</td><td class="num red">-11.368,92</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Shopee</td><td class="num">0,00</td><td class="num">9.486,57</td><td class="num">5.973,85</td><td class="num">3.512,72</td><td class="num green">+3.512,72</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Aplicações Financeiras (BB)</td><td class="num">4.955,74</td><td class="num">21.309,12</td><td class="num">9.834,02</td><td class="num green">16.430,84</td><td class="num green">+11.475,10</td></tr>
+          <tr><td>&nbsp;&nbsp;Clientes (Duplicatas a Receber)</td><td class="num">636.275,74</td><td class="num">37.874,45</td><td class="num">43.378,23</td><td class="num">630.771,96</td><td class="num red">-5.503,78</td></tr>
+          <tr><td>&nbsp;&nbsp;Outros Créditos / Tributos a Recuperar</td><td class="num">30.134,73</td><td class="num">1.812,43</td><td class="num">1.712,67</td><td class="num">30.234,49</td><td class="num green">+99,76</td></tr>
+          <tr><td>&nbsp;&nbsp;Estoque</td><td class="num">22.058,45</td><td class="num">33.710,36</td><td class="num">33.698,62</td><td class="num">22.070,19</td><td class="num green">+11,74</td></tr>
+          <tr class="total-row"><td>ATIVO NÃO-CIRCULANTE (Imobilizado)</td><td class="num">3.285,49</td><td class="num">0,00</td><td class="num">62,35</td><td class="num">3.223,14</td><td class="num red">-62,35</td></tr>
+          <tr class="total-row"><td>TOTAL DO ATIVO</td><td class="num bold">720.218,42</td><td class="num bold">167.768,29</td><td class="num bold">169.604,02</td><td class="num bold">718.382,69</td><td class="num red bold">-1.835,73</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SEÇÃO: PASSIVO -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="passivo" class="section">
+
+    <div class="kpi-grid">
+      <div class="kpi-card red">
+        <div class="kpi-label">Passivo Circulante</div>
+        <div class="kpi-value red">R$ 859.581</div>
+        <div class="kpi-sub">↑ Cresceu R$ 13.506 no mês</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Fornecedores</div>
+        <div class="kpi-value" style="color:var(--accent2)">R$ 823.099</div>
+        <div class="kpi-sub">95,8% do passivo circulante</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Obrigações Tributárias</div>
+        <div class="kpi-value">R$ 6.913</div>
+        <div class="kpi-sub">Impostos a recolher</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Obrigações Trabalhistas</div>
+        <div class="kpi-value">R$ 3.454</div>
+        <div class="kpi-sub">Pró-labore + INSS</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Composição do Passivo Circulante</div>
+        <div class="chart-sub">Distribuição das obrigações (saldo atual)</div>
+        <div class="chart-wrap"><canvas id="chartPassivo" height="280"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Obrigações Tributárias — Detalhamento</div>
+        <div class="chart-sub">Impostos a recolher (R$ 6.913)</div>
+        <div class="chart-wrap"><canvas id="chartTributos" height="280"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-title">Detalhamento do Passivo — Janeiro 2026</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Conta</th>
+            <th style="text-align:right">Saldo Anterior</th>
+            <th style="text-align:right">Débito</th>
+            <th style="text-align:right">Crédito</th>
+            <th style="text-align:right">Saldo Atual</th>
+            <th style="text-align:right">Variação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>PASSIVO CIRCULANTE</td><td class="num">846.075,88</td><td class="num">27.256,55</td><td class="num">40.762,10</td><td class="num red">859.581,43</td><td class="num red">+13.505,55</td></tr>
+          <tr><td>&nbsp;&nbsp;Empréstimos e Financiamentos</td><td class="num">25.273,55</td><td class="num">0,00</td><td class="num">0,00</td><td class="num">25.273,55</td><td class="num">0,00</td></tr>
+          <tr><td>&nbsp;&nbsp;Fornecedores</td><td class="num">814.872,23</td><td class="num">6.745,53</td><td class="num">14.972,28</td><td class="num">823.098,98</td><td class="num red">+8.226,75</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Fornecedor Diversos</td><td class="num">814.872,23</td><td class="num">4.813,27</td><td class="num">1.224,02</td><td class="num">811.282,98</td><td class="num green">-3.589,25</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Tradestare Importação</td><td class="num">0,00</td><td class="num">1.932,26</td><td class="num">11.650,88</td><td class="num">9.718,62</td><td class="num red">+9.718,62</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;&nbsp;&nbsp;Ebazar</td><td class="num">0,00</td><td class="num">0,00</td><td class="num">2.097,38</td><td class="num">2.097,38</td><td class="num red">+2.097,38</td></tr>
+          <tr><td>&nbsp;&nbsp;Obrigações Tributárias</td><td class="num">4.129,14</td><td class="num">15.910,48</td><td class="num">18.693,96</td><td class="num">6.912,62</td><td class="num red">+2.783,48</td></tr>
+          <tr><td>&nbsp;&nbsp;Obrigações Trabalhistas</td><td class="num">1.800,96</td><td class="num">470,58</td><td class="num">2.123,51</td><td class="num">3.453,89</td><td class="num red">+1.652,93</td></tr>
+          <tr><td>&nbsp;&nbsp;Outras Obrigações (Adiantamento Clientes)</td><td class="num">0,00</td><td class="num">4.129,96</td><td class="num">4.972,35</td><td class="num">842,39</td><td class="num red">+842,39</td></tr>
+          <tr class="total-row"><td>PATRIMÔNIO LÍQUIDO</td><td class="num red">(125.857,46)</td><td class="num">8.050,10</td><td class="num">389,92</td><td class="num red">(133.517,64)</td><td class="num red">-7.660,18</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SEÇÃO: DESPESAS -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="despesas" class="section">
+
+    <div class="kpi-grid">
+      <div class="kpi-card red">
+        <div class="kpi-label">Total Despesas Operacionais</div>
+        <div class="kpi-value red">R$ 29.373</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Despesas com Vendas</div>
+        <div class="kpi-value">R$ 12.029</div>
+        <div class="kpi-sub">40,9% do total</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Despesas Administrativas</div>
+        <div class="kpi-value">R$ 17.344</div>
+        <div class="kpi-sub">59,1% do total</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Marketing e Publicidade</div>
+        <div class="kpi-value" style="color:var(--accent2)">R$ 4.000</div>
+        <div class="kpi-sub">Maior despesa administrativa</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Despesas com Vendas — Detalhamento</div>
+        <div class="chart-sub">Composição das despesas de vendas (R$ 12.029)</div>
+        <div class="chart-wrap"><canvas id="chartDespVendas" height="300"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Despesas Administrativas — Detalhamento</div>
+        <div class="chart-sub">Composição das despesas administrativas (R$ 17.344)</div>
+        <div class="chart-wrap"><canvas id="chartDespAdmin" height="300"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <div class="chart-title">Ranking de Despesas — Todas as Categorias</div>
+        <div class="chart-sub">Maiores despesas do mês de janeiro/2026</div>
+        <div class="chart-wrap"><canvas id="chartRanking" height="220"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-title">Detalhamento de Despesas — Janeiro 2026</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th style="text-align:right">Valor (R$)</th>
+            <th style="text-align:right">% Total Desp.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="total-row"><td>DESPESAS COM VENDAS</td><td class="num red">12.028,98</td><td class="num">41,0%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Tarifas Shopee</td><td class="num red">4.202,90</td><td class="num">14,3%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Tarifas Mercado Pago (líq.)</td><td class="num red">3.360,10</td><td class="num">11,4%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Fretes e Entregas</td><td class="num red">2.304,97</td><td class="num">7,9%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Comissões (Olist)</td><td class="num red">1.419,98</td><td class="num">4,8%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;DIFAL Shopee</td><td class="num red">521,03</td><td class="num">1,8%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Tarifas Olist</td><td class="num red">220,00</td><td class="num">0,7%</td></tr>
+          <tr class="total-row"><td>DESPESAS ADMINISTRATIVAS</td><td class="num red">17.344,30</td><td class="num">59,0%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Marketing e Publicidade</td><td class="num red">4.000,00</td><td class="num">13,6%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;ICMS Diferencial de Alíquota</td><td class="num red">5.355,51</td><td class="num">18,2%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Serviços Prestados por Terceiros</td><td class="num red">2.097,38</td><td class="num">7,1%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Honorários Contábeis</td><td class="num red">2.000,00</td><td class="num">6,8%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Pró-Labore</td><td class="num red">1.621,00</td><td class="num">5,5%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Cartão de Crédito</td><td class="num red">800,43</td><td class="num">2,7%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Sistemas e Ferramentas</td><td class="num red">659,64</td><td class="num">2,2%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;INSS</td><td class="num red">502,51</td><td class="num">1,7%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Despesas Bancárias</td><td class="num red">188,80</td><td class="num">0,6%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Depreciações e Amortizações</td><td class="num red">62,35</td><td class="num">0,2%</td></tr>
+          <tr class="subtotal"><td>&nbsp;&nbsp;Telefone</td><td class="num red">56,68</td><td class="num">0,2%</td></tr>
+          <tr class="total-row"><td>TOTAL GERAL DE DESPESAS</td><td class="num red bold">29.373,28</td><td class="num bold">100,0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SEÇÃO: BALANCETE COMPLETO -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="balancete" class="section">
+
+    <div class="table-card">
+      <div class="table-title">Resumo do Balancete — Janeiro 2026</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Grupo</th>
+            <th style="text-align:right">Saldo Anterior</th>
+            <th style="text-align:right">Débito</th>
+            <th style="text-align:right">Crédito</th>
+            <th style="text-align:right">Saldo Atual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="bold">ATIVO</td><td class="num">720.218,42 D</td><td class="num">167.768,29</td><td class="num">169.604,02</td><td class="num">718.382,69 D</td></tr>
+          <tr><td class="bold">PASSIVO</td><td class="num">720.218,42 C</td><td class="num">35.306,65</td><td class="num">41.152,02</td><td class="num">726.063,79 C</td></tr>
+          <tr><td class="bold">PATRIMÔNIO LÍQUIDO</td><td class="num red">125.857,46 D</td><td class="num">8.050,10</td><td class="num">389,92</td><td class="num red">133.517,64 D</td></tr>
+          <tr><td class="bold">CONTAS DE RESULTADO – CUSTOS E DESPESAS</td><td class="num">0,00</td><td class="num">38.128,01</td><td class="num">860,28</td><td class="num red">37.267,73 D</td></tr>
+          <tr><td class="bold">CONTAS DE RESULTADO – RECEITAS</td><td class="num">0,00</td><td class="num">9.331,89</td><td class="num">38.918,52</td><td class="num green">29.586,63 C</td></tr>
+          <tr class="total-row"><td>CONTAS DEVEDORAS</td><td class="num">720.218,42 D</td><td class="num">205.896,30</td><td class="num">170.464,30</td><td class="num">755.650,42 D</td></tr>
+          <tr class="total-row"><td>CONTAS CREDORAS</td><td class="num">594.360,96 C</td><td class="num">52.688,64</td><td class="num">80.460,46</td><td class="num">622.132,78 C</td></tr>
+          <tr class="total-row"><td class="bold" style="color:var(--danger)">RESULTADO DO MÊS (PREJUÍZO)</td><td class="num">0,00</td><td class="num">37.267,73</td><td class="num">29.586,63</td><td class="num red bold">7.681,10 D</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Equilíbrio Patrimonial</div>
+      <div class="chart-sub">Ativo × Passivo + Patrimônio Líquido (saldo atual)</div>
+      <div class="chart-wrap"><canvas id="chartEquilibrio" height="120"></canvas></div>
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  JJC Ferramentas Ltda · CNPJ 47.835.951/0001-44 · Balancete Jan/2026 · Emissão 25/02/2026 · Sistema licenciado para Perin & Kranvetz Contabilidade
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ── PALETA ──
+const COLORS = {
+  blue:   '#2563eb',
+  green:  '#10b981',
+  amber:  '#f59e0b',
+  red:    '#ef4444',
+  purple: '#8b5cf6',
+  teal:   '#14b8a6',
+  pink:   '#ec4899',
+  indigo: '#6366f1',
+  navy:   '#1e3a5f',
+  gray:   '#94a3b8',
+};
+const PALETTE = Object.values(COLORS);
+
+const fmtBRL = v => 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+// ── TAB NAVIGATION ──
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── CHART: Ativo Circulante (Visão Geral) ──
+new Chart(document.getElementById('chartAtivoCirc'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Clientes a Receber', 'Disponível', 'Outros Créditos', 'Estoque'],
+    datasets: [{
+      data: [630771.96, 32082.91, 30234.49, 22070.19],
+      backgroundColor: [COLORS.blue, COLORS.green, COLORS.amber, COLORS.purple],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16 } },
+      datalabels: {
+        formatter: (v, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        },
+        color: '#fff', font: { weight: 'bold', size: 12 }
+      },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtBRL(ctx.raw) } }
+    }
+  }
+});
+
+// ── CHART: DRE Comparativo ──
+new Chart(document.getElementById('chartDRE'), {
+  type: 'bar',
+  data: {
+    labels: ['Receita Bruta', 'Receita Líquida', 'Lucro Bruto', 'Desp. Operacionais', 'Resultado'],
+    datasets: [{
+      label: 'Valor (R$)',
+      data: [37874.45, 29586.63, 21692.18, 29373.28, -7681.10],
+      backgroundColor: [COLORS.green, COLORS.teal, COLORS.amber, COLORS.red, COLORS.red],
+      borderRadius: 8, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'end',
+        formatter: v => fmtBRL(v),
+        color: COLORS.navy, font: { weight: 'bold', size: 10 }
+      },
+      tooltip: { callbacks: { label: ctx => fmtBRL(ctx.raw) } }
+    },
+    scales: {
+      y: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ── CHART: Patrimônio Antes × Depois ──
+new Chart(document.getElementById('chartPatrimonio'), {
+  type: 'bar',
+  data: {
+    labels: ['Ativo Total', 'Ativo Circulante', 'Disponível', 'Clientes', 'Passivo Circ.', 'Fornecedores'],
+    datasets: [
+      {
+        label: 'Saldo Anterior',
+        data: [720218.42, 716932.93, 28464.01, 636275.74, 846075.88, 814872.23],
+        backgroundColor: COLORS.blue + 'aa', borderRadius: 6,
+      },
+      {
+        label: 'Saldo Atual',
+        data: [718382.69, 715159.55, 32082.91, 630771.96, 859581.43, 823098.98],
+        backgroundColor: COLORS.green + 'cc', borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      datalabels: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmtBRL(ctx.raw) } }
+    },
+    scales: {
+      y: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ── CHART: Waterfall DRE ──
+(function() {
+  const labels = ['Rec. Bruta', 'Deduções', 'Rec. Líquida', 'CMV', 'Lucro Bruto', 'Desp.Vendas', 'Desp.Admin', 'Resultado'];
+  const values = [37874.45, -8287.82, 29586.63, -7894.45, 21692.18, -12028.98, -17344.30, -7681.10];
+  const colors = values.map(v => v >= 0 ? COLORS.green : COLORS.red);
+  colors[2] = COLORS.teal; colors[4] = COLORS.amber; colors[7] = COLORS.red;
+
+  new Chart(document.getElementById('chartWaterfall'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: values.map(Math.abs),
+        backgroundColor: colors,
+        borderRadius: 8, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: 'end', align: 'end',
+          formatter: (v, ctx) => fmtBRL(values[ctx.dataIndex]),
+          color: COLORS.navy, font: { weight: 'bold', size: 10 }
+        },
+        tooltip: { callbacks: { label: ctx => fmtBRL(values[ctx.dataIndex]) } }
+      },
+      scales: {
+        y: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+})();
+
+// ── CHART: Deduções ──
+new Chart(document.getElementById('chartDeducoes'), {
+  type: 'pie',
+  data: {
+    labels: ['Devoluções', 'COFINS', 'PIS', 'ICMS', 'ICMS Fundo/Educ.'],
+    datasets: [{
+      data: [3923.03, 2878.46, 624.93, 726.97, 134.43],
+      backgroundColor: [COLORS.red, COLORS.amber, COLORS.purple, COLORS.blue, COLORS.gray],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      datalabels: {
+        formatter: (v, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        },
+        color: '#fff', font: { weight: 'bold', size: 11 }
+      },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtBRL(ctx.raw) } }
+    }
+  }
+});
+
+// ── CHART: Ativo Total ──
+new Chart(document.getElementById('chartAtivoTotal'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Clientes (87,8%)', 'Disponível (4,5%)', 'Outros Créditos (4,2%)', 'Estoque (3,1%)', 'Imobilizado (0,4%)'],
+    datasets: [{
+      data: [630771.96, 32082.91, 30234.49, 22070.19, 3223.14],
+      backgroundColor: [COLORS.blue, COLORS.green, COLORS.amber, COLORS.purple, COLORS.gray],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      datalabels: {
+        formatter: (v, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        },
+        color: '#fff', font: { weight: 'bold', size: 11 }
+      },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtBRL(ctx.raw) } }
+    }
+  }
+});
+
+// ── CHART: Disponível ──
+new Chart(document.getElementById('chartDisponivel'), {
+  type: 'bar',
+  data: {
+    labels: ['Caixa Geral', 'Aplic. Financeiras', 'Shopee', 'Mercado Pago'],
+    datasets: [{
+      label: 'Saldo Atual',
+      data: [10191.34, 16430.84, 3512.72, 1948.01],
+      backgroundColor: [COLORS.navy, COLORS.green, COLORS.amber, COLORS.purple],
+      borderRadius: 8, borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'end',
+        formatter: v => fmtBRL(v),
+        color: COLORS.navy, font: { weight: 'bold', size: 11 }
+      },
+      tooltip: { callbacks: { label: ctx => fmtBRL(ctx.raw) } }
+    },
+    scales: {
+      x: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ── CHART: Passivo ──
+new Chart(document.getElementById('chartPassivo'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Fornecedores', 'Empréstimos', 'Obrig. Tributárias', 'Obrig. Trabalhistas', 'Outras Obrig.'],
+    datasets: [{
+      data: [823098.98, 25273.55, 6912.62, 3453.89, 842.39],
+      backgroundColor: [COLORS.red, COLORS.amber, COLORS.blue, COLORS.purple, COLORS.gray],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } },
+      datalabels: {
+        formatter: (v, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        },
+        color: '#fff', font: { weight: 'bold', size: 11 }
+      },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtBRL(ctx.raw) } }
+    }
+  }
+});
+
+// ── CHART: Tributos ──
+new Chart(document.getElementById('chartTributos'), {
+  type: 'bar',
+  data: {
+    labels: ['ICMS Dif. Alíquota', 'COFINS', 'ICMS', 'ICMS Fundo', 'PIS'],
+    datasets: [{
+      label: 'A Recolher',
+      data: [4260.50, 1782.63, 348.04, 134.43, 387.02],
+      backgroundColor: [COLORS.red, COLORS.amber, COLORS.blue, COLORS.purple, COLORS.teal],
+      borderRadius: 8, borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'end',
+        formatter: v => fmtBRL(v),
+        color: COLORS.navy, font: { weight: 'bold', size: 11 }
+      },
+      tooltip: { callbacks: { label: ctx => fmtBRL(ctx.raw) } }
+    },
+    scales: {
+      x: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// ── CHART: Despesas Vendas ──
+new Chart(document.getElementById('chartDespVendas'), {
+  type: 'pie',
+  data: {
+    labels: ['Tarifas Shopee', 'Tarifas Mercado Pago', 'Fretes e Entregas', 'Comissões Olist', 'DIFAL Shopee', 'Tarifas Olist'],
+    datasets: [{
+      data: [4202.90, 3360.10, 2304.97, 1419.98, 521.03, 220.00],
+      backgroundColor: [COLORS.red, COLORS.amber, COLORS.blue, COLORS.green, COLORS.purple, COLORS.teal],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 10 } },
+      datalabels: {
+        formatter: (v, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        },
+        color: '#fff', font: { weight: 'bold', size: 10 }
+      },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtBRL(ctx.raw) } }
+    }
+  }
+});
+
+// ── CHART: Despesas Admin ──
+new Chart(document.getElementById('chartDespAdmin'), {
+  type: 'pie',
+  data: {
+    labels: ['ICMS Dif. Alíquota', 'Marketing', 'Serv. Terceiros', 'Honorários Cont.', 'Pró-Labore', 'Cartão Crédito', 'Sistemas', 'INSS', 'Outros'],
+    datasets: [{
+      data: [5355.51, 4000.00, 2097.38, 2000.00, 1621.00, 800.43, 659.64, 502.51, 308.33],
+      backgroundColor: [COLORS.red, COLORS.amber, COLORS.blue, COLORS.green, COLORS.purple, COLORS.teal, COLORS.pink, COLORS.indigo, COLORS.gray],
+      borderWidth: 2, borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, padding: 8 } },
+      datalabels: {
+        formatter: (v, ctx) => {
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/total*100).toFixed(1)+'%';
+        },
+        color: '#fff', font: { weight: 'bold', size: 9 }
+      },
+      tooltip: { callbacks: { label: ctx => ' ' + fmtBRL(ctx.raw) } }
+    }
+  }
+});
+
+// ── CHART: Ranking Despesas ──
+new Chart(document.getElementById('chartRanking'), {
+  type: 'bar',
+  data: {
+    labels: ['ICMS Dif.Alíq.', 'Tarifas Shopee', 'Marketing', 'Tar.Mercado Pago', 'Serv.Terceiros', 'Honorários', 'Fretes', 'Pró-Labore', 'Comissões', 'Cartão Créd.'],
+    datasets: [{
+      label: 'Valor (R$)',
+      data: [5355.51, 4202.90, 4000.00, 3360.10, 2097.38, 2000.00, 2304.97, 1621.00, 1419.98, 800.43],
+      backgroundColor: [
+        COLORS.red, COLORS.red+'cc', COLORS.amber, COLORS.amber+'cc',
+        COLORS.blue, COLORS.blue+'cc', COLORS.purple, COLORS.purple+'cc',
+        COLORS.teal, COLORS.teal+'cc'
+      ],
+      borderRadius: 6, borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'end',
+        formatter: v => fmtBRL(v),
+        color: COLORS.navy, font: { weight: 'bold', size: 10 }
+      },
+      tooltip: { callbacks: { label: ctx => fmtBRL(ctx.raw) } }
+    },
+    scales: {
+      y: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// ── CHART: Equilíbrio ──
+new Chart(document.getElementById('chartEquilibrio'), {
+  type: 'bar',
+  data: {
+    labels: ['Ativo', 'Passivo Circulante', 'Patrimônio Líquido (negativo)'],
+    datasets: [{
+      label: 'Saldo Atual (R$)',
+      data: [718382.69, 859581.43, 133517.64],
+      backgroundColor: [COLORS.green, COLORS.red, COLORS.amber],
+      borderRadius: 8, borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      datalabels: {
+        anchor: 'end', align: 'end',
+        formatter: v => fmtBRL(v),
+        color: COLORS.navy, font: { weight: 'bold', size: 12 }
+      },
+      tooltip: { callbacks: { label: ctx => fmtBRL(ctx.raw) } }
+    },
+    scales: {
+      x: { ticks: { callback: v => 'R$ '+v.toLocaleString('pt-BR') }, grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+</script>
+</body>
+</html>
